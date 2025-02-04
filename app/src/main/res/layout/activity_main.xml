@@ -7,13 +7,82 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
     <TextView
+        android:id="@+id/accelerometer_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginTop="4dp"
+        android:padding="16dp"
+        android:text="Données Accéléromètre"
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <TextView
+        android:id="@+id/gps_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:padding="16dp"
+        android:text="Vitesse"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/accelerometer_data"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Données Météo:"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/gps_data"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <TextView
+        android:id="@+id/temperature_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Température: --°C"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/humidity_data"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <TextView
+        android:id="@+id/pressure_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pression: -- hPa"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/temperature_data"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <TextView
+        android:id="@+id/humidity_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Humidité: --%"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <TextView
+        android:id="@+id/network_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chargement des données réseau..."
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@+id/pressure_data"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <TextView
+        android:id="@+id/network_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Type de réseau : Inconnu"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@+id/network_data"
+        tools:layout_editor_absoluteX="16dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
