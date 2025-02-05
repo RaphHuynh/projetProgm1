@@ -8,6 +8,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.net.TrafficStats;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -43,6 +44,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView temperatureData;
     private TextView pressureData;
     private TextView humidityData;
+    private TextView networkData;
+    private long previousRxBytes = 0;
+    private long previousTxBytes = 0;
 
 
     @Override
@@ -55,9 +59,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         temperatureData = findViewById(R.id.temperature_data);
         pressureData = findViewById(R.id.pressure_data);
         humidityData = findViewById(R.id.humidity_data);
+        networkData = findViewById(R.id.network_data);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);  // Initialisation correcte
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -66,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             humiditySensor = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
         }
 
+        startNetworkUpdates();
         requestLocationPermission();
         startLocationUpdates();
     }
@@ -135,6 +141,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         handler.post(locationRunnable);
     }
 
+    private void startNetworkUpdates() {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long rxBytes = TrafficStats.getTotalRxBytes();
+                long txBytes = TrafficStats.getTotalTxBytes();
+
+                if (rxBytes != TrafficStats.UNSUPPORTED && txBytes != TrafficStats.UNSUPPORTED) {
+                    long rxSpeed = rxBytes - previousRxBytes;
+                    long txSpeed = txBytes - previousTxBytes;
+                    networkData.setText(String.format("Réseau:\n↓ %.2f KB/s\n↑ %.2f KB/s",
+                            rxSpeed / 1024.0, txSpeed / 1024.0));
+                }
+
+                previousRxBytes = rxBytes;
+                previousTxBytes = txBytes;
+                handler.postDelayed(this, 1000);
+            }
+        });
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -181,7 +208,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             float y = event.values[1];
             float z = event.values[2];
 
-            // Affichage des valeurs
             accelerometerData.setText(String.format("Accéléromètre:\nX: %.2f\nY: %.2f\nZ: %.2f", x, y, z));
         }
         if (event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {
@@ -198,7 +224,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             float humidity = event.values[0];
             humidityData.setText(String.format("Humidité: %.1f%%", humidity));
         }
-
     }
 
     @Override

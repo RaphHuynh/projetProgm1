@@ -75,14 +75,5 @@
         app:layout_constraintTop_toBottomOf="@+id/pressure_data"
         tools:layout_editor_absoluteX="16dp" />
 
-    <TextView
-        android:id="@+id/network_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Type de réseau : Inconnu"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@+id/network_data"
-        tools:layout_editor_absoluteX="16dp" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
