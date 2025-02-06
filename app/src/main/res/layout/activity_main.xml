@@ -34,6 +34,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingStart="16dp"
         android:text="Données Météo:"
         android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/gps_data"
@@ -43,6 +44,7 @@
         android:id="@+id/temperature_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingStart="16dp"
         android:text="Température: --°C"
         android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/humidity_data"
@@ -52,6 +54,8 @@
         android:id="@+id/pressure_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+
         android:text="Pression: -- hPa"
         android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/temperature_data"
@@ -61,6 +65,8 @@
         android:id="@+id/humidity_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+
         android:text="Humidité: --%"
         android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/textView3"
@@ -70,8 +76,9 @@
         android:id="@+id/network_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="16dp"
         android:text="Chargement des données réseau..."
-        android:textSize="16sp"
+        android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/pressure_data"
         tools:layout_editor_absoluteX="16dp" />
 
