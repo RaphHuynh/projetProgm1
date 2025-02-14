@@ -7,6 +7,8 @@ appcompat = "1.6.1"
 material = "1.10.0"
 activity = "1.8.0"
 constraintlayout = "2.1.4"
+orgEclipsePahoAndroidService = "1.1.1"
+orgEclipsePahoClientMqttv3 = "1.2.4"
 playServicesLocation = "21.3.0"
 retrofit = "2.11.0"
 converterGson = "2.11.0"
@@ -19,6 +21,8 @@ appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "a
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+org-eclipse-paho-android-service = { module = "org.eclipse.paho:org.eclipse.paho.android.service", version.ref = "orgEclipsePahoAndroidService" }
+org-eclipse-paho-client-mqttv3 = { module = "org.eclipse.paho:org.eclipse.paho.client.mqttv3", version.ref = "orgEclipsePahoClientMqttv3" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converterGson" }

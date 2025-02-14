@@ -40,7 +40,12 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.org.eclipse.paho.android.service)
+    implementation(libs.org.eclipse.paho.client.mqttv3)
+
     testImplementation(libs.junit)
+
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
 }

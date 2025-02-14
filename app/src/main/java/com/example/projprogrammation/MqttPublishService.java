@@ -16,44 +16,54 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-public class MqttService extends Service {
+public class MqttPublishService extends Service {
 
-    private static final String TAG = "MqttService";
+    private static final String TAG = "MqttPublishService";
     private static final String SERVER_URI = "tcp://194.57.103.203:1883";
-    private static final String TOPIC = "vehicule";
-    private MqttAndroidClient mqttAndroidClient;
+    private static final String TOPIC = "vehicle";
+    MqttAndroidClient mqttAndroidClient;
     private final IBinder binder = new LocalBinder();
+    private boolean isConnected = false;
 
     public class LocalBinder extends Binder {
-        public MqttService getService() {
-            return MqttService.this;
+        public MqttPublishService getService() {
+            return MqttPublishService.this;
         }
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        String clientId = MqttClient.generateClientId();
-        mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), SERVER_URI, clientId);
+        Log.d(TAG, "onCreate: Service created");
+        initializeMqttClient();
+    }
 
-        mqttAndroidClient.setCallback(new MqttCallback() {
-            @Override
-            public void connectionLost(Throwable cause) {
-                Log.d(TAG, "Connection lost: " + cause.getMessage());
-            }
+    private void initializeMqttClient() {
+        if (mqttAndroidClient == null) {
+            String clientId = MqttClient.generateClientId();
+            mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), SERVER_URI, clientId);
 
-            @Override
-            public void messageArrived(String topic, MqttMessage message) throws Exception {
-                Log.d(TAG, "Message arrived: " + new String(message.getPayload()));
-            }
+            mqttAndroidClient.setCallback(new MqttCallback() {
+                @Override
+                public void connectionLost(Throwable cause) {
+                    Log.d(TAG, "Connection lost: " + cause.getMessage());
+                    isConnected = false;
+                }
 
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken token) {
-                Log.d(TAG, "Delivery complete");
-            }
-        });
+                @Override
+                public void messageArrived(String topic, MqttMessage message) throws Exception {
+                    Log.d(TAG, "Message arrived: " + new String(message.getPayload()));
+                }
 
-        connect();
+                @Override
+                public void deliveryComplete(IMqttDeliveryToken token) {
+                    Log.d(TAG, "Delivery complete");
+                }
+            });
+
+            connect();
+        }
+
     }
 
     private void connect() {
@@ -66,16 +76,19 @@ public class MqttService extends Service {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     Log.d(TAG, "Connection success");
+                    isConnected = true;
                     subscribeToTopic();
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     Log.d(TAG, "Connection failure: " + exception.getMessage());
+                    isConnected = false;
                 }
             });
         } catch (MqttException e) {
             Log.e(TAG, "Error connecting to MQTT server", e);
+            isConnected = false;
         }
     }
 
@@ -98,22 +111,26 @@ public class MqttService extends Service {
     }
 
     public void publishMessage(String message) {
-        try {
-            if (mqttAndroidClient.isConnected()) {
+        if (mqttAndroidClient == null) {
+            initializeMqttClient();
+        }
+        if (mqttAndroidClient != null && isConnected) {
+            try {
                 MqttMessage mqttMessage = new MqttMessage();
                 mqttMessage.setPayload(message.getBytes());
                 mqttAndroidClient.publish(TOPIC, mqttMessage);
                 Log.d(TAG, "Message published: " + message);
-            } else {
-                Log.d(TAG, "Not connected to MQTT server. Cannot publish message.");
+            } catch (MqttException e) {
+                Log.e(TAG, "Error publishing message", e);
             }
-        } catch (MqttException e) {
-            Log.e(TAG, "Error publishing message", e);
+        } else {
+            Log.d(TAG, "Not connected to MQTT server or client not initialized. Cannot publish message.");
         }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand: Service started");
         return START_STICKY;
     }
 
@@ -121,15 +138,17 @@ public class MqttService extends Service {
     public void onDestroy() {
         super.onDestroy();
         disconnect();
+        Log.d(TAG, "onDestroy: Service destroyed");
     }
 
     private void disconnect() {
         try {
-            if (mqttAndroidClient.isConnected()) {
+            if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
                 mqttAndroidClient.disconnect(null, new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
                         Log.d(TAG, "Disconnected from MQTT server");
+                        isConnected = false;
                     }
 
                     @Override
@@ -145,7 +164,13 @@ public class MqttService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind: Service bound");
         return binder;
     }
 
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.d(TAG, "onUnbind: Service unbound");
+        return super.onUnbind(intent);
+    }
 }
