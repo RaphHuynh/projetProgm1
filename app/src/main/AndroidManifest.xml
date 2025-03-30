@@ -42,6 +42,7 @@
         <activity android:name=".HumidityActivity" />
         <activity android:name=".MagnetometerActivity" />
         <activity android:name=".GyroscopeActivity" />
+        <activity android:name=".GpsActivity" />
     </application>
 
 </manifest>

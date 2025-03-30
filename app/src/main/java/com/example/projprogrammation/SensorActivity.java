@@ -46,4 +46,9 @@ public class SensorActivity extends BaseActivity {
         Intent intent = new Intent(this, GyroscopeActivity.class);
         startActivity(intent);
     }
+
+    public void openGpsActivity(View view) {
+        Intent intent = new Intent(this, GpsActivity.class);
+        startActivity(intent);
+    }
 }
