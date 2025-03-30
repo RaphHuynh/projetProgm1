@@ -77,6 +77,7 @@
                     android:layout_height="150dp"
                     android:layout_margin="8dp"
                     android:clickable="true"
+                    android:onClick="openTemperatureActivity"
                     android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="4dp">
@@ -118,6 +119,7 @@
                     android:layout_height="150dp"
                     android:layout_margin="8dp"
                     android:clickable="true"
+                    android:onClick="openPressureActivity"
                     android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="4dp">
@@ -159,6 +161,7 @@
                     android:layout_height="150dp"
                     android:layout_margin="8dp"
                     android:clickable="true"
+                    android:onClick="openHumidityActivity"
                     android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="4dp">
@@ -200,6 +203,7 @@
                     android:layout_height="150dp"
                     android:layout_margin="8dp"
                     android:clickable="true"
+                    android:onClick="openMagnetometerActivity"
                     android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="4dp">
@@ -241,6 +245,7 @@
                     android:layout_height="150dp"
                     android:layout_margin="8dp"
                     android:clickable="true"
+                    android:onClick="openGyroscopeActivity"
                     android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="4dp">

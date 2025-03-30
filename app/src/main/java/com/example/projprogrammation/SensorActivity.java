@@ -21,4 +21,29 @@ public class SensorActivity extends BaseActivity {
         Intent intent = new Intent(this, AccelerometerActivity.class);
         startActivity(intent);
     }
+
+    public void openTemperatureActivity(View view) {
+        Intent intent = new Intent(this, TemperatureActivity.class);
+        startActivity(intent);
+    }
+
+    public void openPressureActivity(View view) {
+        Intent intent = new Intent(this, PressureActivity.class);
+        startActivity(intent);
+    }
+
+    public void openHumidityActivity(View view) {
+        Intent intent = new Intent(this, HumidityActivity.class);
+        startActivity(intent);
+    }
+
+    public void openMagnetometerActivity(View view) {
+        Intent intent = new Intent(this, MagnetometerActivity.class);
+        startActivity(intent);
+    }
+
+    public void openGyroscopeActivity(View view) {
+        Intent intent = new Intent(this, GyroscopeActivity.class);
+        startActivity(intent);
+    }
 }

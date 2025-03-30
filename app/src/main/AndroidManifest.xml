@@ -37,6 +37,11 @@
         <activity android:name=".RecordActivity" />
         <activity android:name=".HistoryActivity" />
         <activity android:name=".AccelerometerActivity" />
+        <activity android:name=".TemperatureActivity" />
+        <activity android:name=".PressureActivity" />
+        <activity android:name=".HumidityActivity" />
+        <activity android:name=".MagnetometerActivity" />
+        <activity android:name=".GyroscopeActivity" />
     </application>
 
 </manifest>

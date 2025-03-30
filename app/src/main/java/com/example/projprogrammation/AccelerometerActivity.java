@@ -10,7 +10,7 @@ public class AccelerometerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_accelerometre);
+        setContentView(R.layout.activity_accelerometer); // Assurez-vous que ce layout existe
 
         accelerometerData = findViewById(R.id.accelerometer_data);
 

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">projProgrammation</string>
+    <string name="accelerometer_icon">Accelerometer Icon</string>
 </resources>
