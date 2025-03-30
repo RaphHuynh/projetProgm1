@@ -1,71 +1,85 @@
 package com.example.projprogrammation;
 
 import android.os.Bundle;
-import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
-    private MqttPublishService MqttPublishService;
-    private SensorHandler sensorHandler;
-    private LocationHandler locationHandler;
-    private NetworkHandler networkHandler;
-    private TextView accelerometerData;
-    private TextView gpsData;
-    private TextView temperatureData;
-    private TextView pressureData;
-    private TextView humidityData;
-    private TextView networkData;
+    private FragmentManager fragmentManager;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize TextViews
-        accelerometerData = findViewById(R.id.accelerometer_data);
-        gpsData = findViewById(R.id.gps_data);
-        temperatureData = findViewById(R.id.temperature_data);
-        pressureData = findViewById(R.id.pressure_data);
-        humidityData = findViewById(R.id.humidity_data);
-        networkData = findViewById(R.id.network_data);
-        MqttPublishService = new MqttPublishService();
+        fragmentManager = getSupportFragmentManager();
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Initialize Handlers
-        sensorHandler = new SensorHandler(this, accelerometerData, temperatureData, pressureData, humidityData, MqttPublishService);
-        locationHandler = new LocationHandler(this, gpsData);
-        networkHandler = new NetworkHandler(networkData);
+        // Charger le fragment d'accueil par défaut
+        if (savedInstanceState == null) {
+            loadFragment(new HomeFragment());
+            bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+        }
 
-        // Start network updates
-        networkHandler.startNetworkUpdates();
+        // Configurer la navigation
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
 
-        // Request location permission and start updates
-        locationHandler.requestLocationPermission(this);
-        locationHandler.startLocationUpdates();
+            if (item.getItemId() == R.id.navigation_home) {
+                selectedFragment = new HomeFragment();
+            } else if (item.getItemId() == R.id.navigation_record) {
+                selectedFragment = new RecordFragment();
+            } else if (item.getItemId() == R.id.navigation_history) {
+                selectedFragment = new HistoryFragment();
+            } else if (item.getItemId() == R.id.navigation_sensor) {
+                selectedFragment = new SensorFragment();
+            }
+
+            if (selectedFragment != null) {
+                loadFragment(selectedFragment);
+            }
+            return true;
+        });
+    }
+
+    // Méthode pour charger un fragment
+    private void loadFragment(Fragment fragment) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.addToBackStack(null); // Ajouter à la pile pour gérer le bouton retour
+        transaction.commit();
+    }
+
+    // Méthode pour mettre à jour l'état de la barre de navigation
+    public void updateBottomNavigation(int menuItemId) {
+        bottomNavigationView.setSelectedItemId(menuItemId);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        locationHandler.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
+    public void onBackPressed() {
+        // Vérifier si la pile de fragments contient plus d'un élément
+        if (fragmentManager.getBackStackEntryCount() > 1) {
+            fragmentManager.popBackStack(); // Supprimer le fragment actuel de la pile
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        sensorHandler.registerListeners();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        sensorHandler.unregisterListeners();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        locationHandler.stopLocationUpdates();
+            // Mettre à jour la barre de navigation en fonction du fragment visible
+            Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);
+            if (currentFragment instanceof HomeFragment) {
+                updateBottomNavigation(R.id.navigation_home);
+            } else if (currentFragment instanceof RecordFragment) {
+                updateBottomNavigation(R.id.navigation_record);
+            } else if (currentFragment instanceof HistoryFragment) {
+                updateBottomNavigation(R.id.navigation_history);
+            } else if (currentFragment instanceof SensorFragment) {
+                updateBottomNavigation(R.id.navigation_sensor);
+            }
+        } else {
+            // Si c'est le dernier fragment, quitter l'application
+            super.onBackPressed();
+        }
     }
 }

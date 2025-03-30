@@ -65,8 +65,9 @@ public class SensorHandler implements SensorEventListener {
             float x = event.values[0];
             float y = event.values[1];
             float z = event.values[2];
-            String data = String.format("Accéléromètre:\nX: %.2f\nY: %.2f\nZ: %.2f", x, y, z);
-            accelerometerData.setText(data);
+            if (accelerometerData != null) {
+                accelerometerData.setText(String.format("Accéléromètre:\nX: %.2f\nY: %.2f\nZ: %.2f", x, y, z));
+            }
 
             // Envoyer les données via MqttService
             if (mqttPublishService != null && mqttPublishService.mqttAndroidClient != null) {
@@ -86,15 +87,21 @@ public class SensorHandler implements SensorEventListener {
         }
         if (event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {
             float temperature = event.values[0];
-            temperatureData.setText(String.format("Température: %.1f°C", temperature));
+            if (temperatureData != null) {
+                temperatureData.setText(String.format("Température: %.1f°C", temperature));
+            }
         }
         if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
             float pressure = event.values[0];
-            pressureData.setText(String.format("Pression: %.1f hPa", pressure));
+            if (pressureData != null) {
+                pressureData.setText(String.format("Pression: %.1f hPa", pressure));
+            }
         }
         if (event.sensor.getType() == Sensor.TYPE_RELATIVE_HUMIDITY) {
             float humidity = event.values[0];
-            humidityData.setText(String.format("Humidité: %.1f%%", humidity));
+            if (humidityData != null) {
+                humidityData.setText(String.format("Humidité: %.1f%%", humidity));
+            }
         }
     }
 
