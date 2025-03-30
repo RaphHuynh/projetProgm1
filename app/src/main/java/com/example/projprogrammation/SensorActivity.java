@@ -1,6 +1,8 @@
 package com.example.projprogrammation;
 
 import android.os.Bundle;
+import android.content.Intent;
+import android.view.View;
 
 public class SensorActivity extends BaseActivity {
     @Override
@@ -13,5 +15,10 @@ public class SensorActivity extends BaseActivity {
     @Override
     protected int getActiveMenuItemId() {
         return R.id.navigation_sensor;
+    }
+
+    public void openAccelerometerActivity(View view) {
+        Intent intent = new Intent(this, AccelerometerActivity.class);
+        startActivity(intent);
     }
 }

@@ -36,6 +36,7 @@
         </activity>
         <activity android:name=".RecordActivity" />
         <activity android:name=".HistoryActivity" />
+        <activity android:name=".AccelerometerActivity" />
     </application>
 
 </manifest>

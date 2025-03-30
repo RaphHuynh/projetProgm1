@@ -1,6 +1,7 @@
 package com.example.projprogrammation;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -22,6 +23,7 @@ public class SensorHandler implements SensorEventListener {
     private TextView pressureData;
     private TextView humidityData;
     private MqttPublishService mqttPublishService;
+    private Context context;
 
     public SensorHandler(Context context, TextView accelerometerData, TextView temperatureData, TextView pressureData, TextView humidityData, MqttPublishService mqttPublishService) {
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
@@ -30,7 +32,7 @@ public class SensorHandler implements SensorEventListener {
         this.pressureData = pressureData;
         this.humidityData = humidityData;
         this.mqttPublishService = mqttPublishService;
-
+        this.context = context;
 
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
