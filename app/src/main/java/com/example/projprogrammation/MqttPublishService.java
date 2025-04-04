@@ -3,6 +3,7 @@ package com.example.projprogrammation;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -24,6 +25,9 @@ public class MqttPublishService extends Service {
     MqttAndroidClient mqttAndroidClient;
     private final IBinder binder = new LocalBinder();
     private boolean isConnected = false;
+    private Handler handler = new Handler();
+    private Runnable publishRunnable;
+    private static final int PUBLISH_INTERVAL = 5000; // Intervalle en millisecondes (5 secondes)
 
     public class LocalBinder extends Binder {
         public MqttPublishService getService() {
@@ -131,14 +135,42 @@ public class MqttPublishService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: Service started");
+
+        // Démarrer la publication périodique
+        startPublishing();
+
         return START_STICKY;
+    }
+
+    private void startPublishing() {
+        publishRunnable = new Runnable() {
+            @Override
+            public void run() {
+                String message = generateMessage(); // Générer un message à publier
+                publishMessage(message); // Publier le message
+                handler.postDelayed(this, PUBLISH_INTERVAL); // Replanifier la tâche
+            }
+        };
+        handler.post(publishRunnable); // Démarrer la tâche
+    }
+
+    private String generateMessage() {
+        // Générer un message à envoyer (exemple : données simulées ou réelles)
+        return "Données envoyées à " + System.currentTimeMillis();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        stopPublishing(); // Arrêter la publication périodique
         disconnect();
         Log.d(TAG, "onDestroy: Service destroyed");
+    }
+
+    private void stopPublishing() {
+        if (handler != null && publishRunnable != null) {
+            handler.removeCallbacks(publishRunnable); // Arrêter la tâche
+        }
     }
 
     private void disconnect() {
