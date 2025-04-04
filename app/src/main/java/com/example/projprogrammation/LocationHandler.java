@@ -1,3 +1,4 @@
+// unused
 package com.example.projprogrammation;
 
 import android.Manifest;
