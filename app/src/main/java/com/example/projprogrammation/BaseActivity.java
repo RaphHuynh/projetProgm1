@@ -10,35 +10,37 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
-
+        
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(getActiveMenuItemId());
+        
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == R.id.navigation_home && !(this instanceof HomeActivity)) {
+            if (itemId == getActiveMenuItemId()) {
+                return true;
+            }
+            
+            if (itemId == R.id.navigation_home) {
                 navigateToActivity(HomeActivity.class);
-            } else if (itemId == R.id.navigation_record && !(this instanceof RecordActivity)) {
+            } else if (itemId == R.id.navigation_record) {
                 navigateToActivity(RecordActivity.class);
-            } else if (itemId == R.id.navigation_history && !(this instanceof HistoryActivity)) {
+            } else if (itemId == R.id.navigation_history) {
                 navigateToActivity(HistoryActivity.class);
-            } else if (itemId == R.id.navigation_sensor && !(this instanceof SensorActivity)) {
+            } else if (itemId == R.id.navigation_sensor) {
                 navigateToActivity(SensorActivity.class);
             }
             return true;
         });
-
-        int activeItemId = getActiveMenuItemId();
-        if (activeItemId != 0) {
-            bottomNavigationView.setSelectedItemId(activeItemId);
-        }
     }
 
     protected abstract int getActiveMenuItemId();
 
-    private void navigateToActivity(Class<?> targetActivity) {
+    protected void navigateToActivity(Class<?> targetActivity) {
         Intent intent = new Intent(this, targetActivity);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        finish();
     }
 
     @Override
