@@ -7,6 +7,6 @@ public class PressureActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pressure); // Assurez-vous que ce layout existe
+        setContentView(R.layout.activity_pressure);
     }
 }

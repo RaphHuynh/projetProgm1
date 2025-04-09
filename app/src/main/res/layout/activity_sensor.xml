@@ -44,7 +44,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:gravity="center">
 
                         <ImageView
                             android:id="@+id/accelerometer_icon"
@@ -67,7 +68,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="X: 0.00, Y: 0.00, Z: 0.00" />
+                            android:text="Données XYZ" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -86,7 +87,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:gravity="center">
 
                         <ImageView
                             android:id="@+id/temperature_icon"
@@ -109,7 +111,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Température: 0.0°C" />
+                            android:text="Température" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -128,7 +130,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:gravity="center">
 
                         <ImageView
                             android:id="@+id/pressure_icon"
@@ -151,7 +154,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Pression: 0.0 hPa" />
+                            android:text="Pression" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -170,7 +173,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:gravity="center">
 
                         <ImageView
                             android:id="@+id/humidity_icon"
@@ -193,7 +197,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Humidité: 0.0%" />
+                            android:text="Humidité" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -212,7 +216,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:gravity="center">
 
                         <ImageView
                             android:id="@+id/magnetometer_icon"
@@ -235,7 +240,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="X: 0.00, Y: 0.00, Z: 0.00" />
+                            android:text="Données XYZ" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -254,7 +259,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:gravity="center">
 
                         <ImageView
                             android:id="@+id/gyroscope_icon"
@@ -277,7 +283,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="X: 0.00, Y: 0.00, Z: 0.00" />
+                            android:text="Données XYZ" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -296,7 +302,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:gravity="center">
 
                         <ImageView
                             android:id="@+id/gps_icon"
@@ -319,7 +326,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Latitude: 0.000000, Longitude: 0.000000" />
+                            android:text="Coordonnées" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 

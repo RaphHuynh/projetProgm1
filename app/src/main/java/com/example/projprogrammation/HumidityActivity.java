@@ -7,6 +7,6 @@ public class HumidityActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_humidity); // Assurez-vous que ce layout existe
+        setContentView(R.layout.activity_humidity);
     }
 }
