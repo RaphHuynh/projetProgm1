@@ -72,19 +72,9 @@ public class SensorHandler implements SensorEventListener {
             }
 
             // Envoyer les données via MqttService
-            if (mqttPublishService != null && mqttPublishService.mqttAndroidClient != null) {
-                JSONObject json_data = new JSONObject();
-
-                try {
-                    json_data.put("x", x);
-                    json_data.put("y", y);
-                    json_data.put("z", z);
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-
-                mqttPublishService.publishMessage(json_data.toString());
-                Log.d("SensorHandler", "Data sent via MqttService: " + json_data.toString());
+            if (mqttPublishService != null && mqttPublishService.isConnected()) {
+                // Publier un message ou effectuer une action
+                mqttPublishService.publishMessage("Message depuis SensorHandler");
             }
         }
         if (event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {

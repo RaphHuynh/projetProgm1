@@ -39,8 +39,8 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
-    implementation(libs.org.eclipse.paho.android.service)
     implementation(libs.org.eclipse.paho.client.mqttv3)
+    implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
 
     testImplementation(libs.junit)
 
