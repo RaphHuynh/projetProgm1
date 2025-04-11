@@ -16,6 +16,7 @@ public class TemperatureActivity extends AppCompatActivity implements SensorEven
     private SensorManager sensorManager;
     private Sensor temperatureSensor;
     private SensorPreferences sensorPreferences;
+    private static float temperatureValue = 0.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,9 +99,13 @@ public class TemperatureActivity extends AppCompatActivity implements SensorEven
         if ((event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE || 
              event.sensor.getType() == Sensor.TYPE_TEMPERATURE) && 
             temperatureSwitch.isChecked()) {
-            float temperature = event.values[0];
-            temperatureData.setText(String.format("%.1f °C", temperature));
+            temperatureValue = event.values[0];
+            temperatureData.setText(String.format("%.1f °C", temperatureValue));
         }
+    }
+
+    public static float getTemperatureData() {
+        return temperatureValue;
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONObject;
 
 public class MqttPublishService extends Service {
 
@@ -25,7 +26,8 @@ public class MqttPublishService extends Service {
     private final IBinder binder = new LocalBinder();
     private Handler handler = new Handler();
     private Runnable publishRunnable;
-    private static final int PUBLISH_INTERVAL = 5000; // Intervalle en millisecondes (5 secondes)
+    private static final int PUBLISH_INTERVAL = 1000; // Intervalle en millisecondes (1 seconde)
+    private SensorDataProvider sensorDataProvider; // Interface pour récupérer les données des capteurs
 
     public class LocalBinder extends Binder {
         public MqttPublishService getService() {
@@ -38,6 +40,7 @@ public class MqttPublishService extends Service {
         super.onCreate();
         Log.d(TAG, "onCreate: Service created");
         initializeMqttClient();
+        sensorDataProvider = SensorDataProvider.getInstance(this); // Passer le contexte de service
     }
 
     private void initializeMqttClient() {
@@ -81,17 +84,43 @@ public class MqttPublishService extends Service {
         publishRunnable = new Runnable() {
             @Override
             public void run() {
-                String message = generateMessage(); // Générer un message à publier
+                String message = generateSensorDataMessage(); // Générer un message JSON avec les données des capteurs
                 publishMessage(message); // Publier le message
-                handler.postDelayed(this, PUBLISH_INTERVAL); // Replanifier la tâche
+                handler.postDelayed(this, PUBLISH_INTERVAL); // Replanifier la tâche toutes les secondes
             }
         };
         handler.post(publishRunnable); // Démarrer la tâche
     }
 
-    private String generateMessage() {
-        // Générer un message à envoyer (exemple : données simulées ou réelles)
-        return "Données envoyées à " + System.currentTimeMillis();
+    private String generateSensorDataMessage() {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            if (sensorDataProvider != null) {
+                // Récupérer les données des capteurs activés
+                if (sensorDataProvider.isAccelerometerEnabled()) {
+                    jsonObject.put("accelerometer", sensorDataProvider.getAccelerometerData());
+                }
+                if (sensorDataProvider.isGyroscopeEnabled()) {
+                    jsonObject.put("gyroscope", sensorDataProvider.getGyroscopeData());
+                }
+                if (sensorDataProvider.isMagnetometerEnabled()) {
+                    jsonObject.put("magnetometer", sensorDataProvider.getMagnetometerData());
+                }
+                if (sensorDataProvider.isTemperatureEnabled()) {
+                    jsonObject.put("temperature", sensorDataProvider.getTemperatureData());
+                }
+                if (sensorDataProvider.isPressureEnabled()) {
+                    jsonObject.put("pressure", sensorDataProvider.getPressureData());
+                }
+                if (sensorDataProvider.isGpsEnabled()) {
+                    jsonObject.put("gps", sensorDataProvider.getGpsData());
+                }
+            }
+            return jsonObject.toString();
+        } catch (Exception e) {
+            Log.e(TAG, "Error generating sensor data message", e);
+            return "{}"; // Retourner un objet JSON vide en cas d'erreur
+        }
     }
 
     @Override

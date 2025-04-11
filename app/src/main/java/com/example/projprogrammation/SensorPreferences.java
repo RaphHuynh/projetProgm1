@@ -15,6 +15,14 @@ public class SensorPreferences {
     private static final String PRESSURE_ENABLED = "pressure_enabled";
     private static final String HUMIDITY_ENABLED = "humidity_enabled";
     private static final String GPS_ENABLED = "gps_enabled";
+    private static SensorPreferences instance;
+
+    public static SensorPreferences getInstance(Context context) {
+        if (instance == null) {
+            instance = new SensorPreferences(context);
+        }
+        return instance;
+    }
 
     private SharedPreferences preferences;
 

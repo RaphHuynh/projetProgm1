@@ -18,6 +18,9 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private SensorPreferences sensorPreferences;
+    private static float xDataValue = 0.0f;
+    private static float yDataValue = 0.0f;
+    private static float zDataValue = 0.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,18 +97,30 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && accelerometerSwitch.isChecked()) {
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
+            xDataValue = event.values[0];
+            yDataValue = event.values[1];
+            zDataValue = event.values[2];
 
-            xData.setText(String.format("%.2f", x));
-            yData.setText(String.format("%.2f", y));
-            zData.setText(String.format("%.2f", z));
+            xData.setText(String.format("%.2f", xDataValue));
+            yData.setText(String.format("%.2f", yDataValue));
+            zData.setText(String.format("%.2f", zDataValue));
         }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // Non utilisé
+    }
+
+    public static float getXData() {
+        return xDataValue;
+    }
+
+    public static float getYData() {
+        return yDataValue;
+    }
+
+    public static float getZData() {
+        return zDataValue;
     }
 }

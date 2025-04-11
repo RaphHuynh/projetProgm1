@@ -16,6 +16,7 @@ public class PressureActivity extends AppCompatActivity implements SensorEventLi
     private SensorManager sensorManager;
     private Sensor pressureSensor;
     private SensorPreferences sensorPreferences;
+    private static float pressureValue = 0.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,9 +92,13 @@ public class PressureActivity extends AppCompatActivity implements SensorEventLi
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_PRESSURE && pressureSwitch.isChecked()) {
-            float pressure = event.values[0];
-            pressureData.setText(String.format("%.2f hPa", pressure));
+            pressureValue = event.values[0];
+            pressureData.setText(String.format("%.2f hPa", pressureValue));
         }
+    }
+
+    public static float getPressureData() {
+        return pressureValue;
     }
 
     @Override

@@ -37,6 +37,8 @@ public class GpsActivity extends AppCompatActivity {
     private boolean requestingLocationUpdates = false;
     private Location lastLocation = null;
     private double distanceParcourue = 0.0;
+    private static double latitudeValue = 0.0;
+    private static double longitudeValue = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,23 +95,14 @@ public class GpsActivity extends AppCompatActivity {
                 if (locationResult == null) {
                     return;
                 }
-                
+
                 for (Location location : locationResult.getLocations()) {
                     if (location != null) {
-                        double latitude = location.getLatitude();
-                        double longitude = location.getLongitude();
-                        float speed = location.getSpeed(); // Vitesse en m/s
-                        
-                        // Calculer la distance parcourue
-                        if (lastLocation != null) {
-                            float distance = lastLocation.distanceTo(location); // En mètres
-                            distanceParcourue += distance;
-                        }
-                        lastLocation = location;
-                        
-                        // Mise à jour de l'UI
-                        latitudeData.setText(String.format("%.6f", latitude));
-                        longitudeData.setText(String.format("%.6f", longitude));
+                        latitudeValue = location.getLatitude();
+                        longitudeValue = location.getLongitude();
+
+                        latitudeData.setText(String.format("%.6f", latitudeValue));
+                        longitudeData.setText(String.format("%.6f", longitudeValue));
                     }
                 }
             }
@@ -209,5 +202,13 @@ public class GpsActivity extends AppCompatActivity {
         } else {
             stopLocationUpdates();
         }
+    }
+
+    public static double getLatitudeData() {
+        return latitudeValue;
+    }
+
+    public static double getLongitudeData() {
+        return longitudeValue;
     }
 }
