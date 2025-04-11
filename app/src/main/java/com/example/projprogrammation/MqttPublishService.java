@@ -28,6 +28,7 @@ public class MqttPublishService extends Service {
     private Runnable publishRunnable;
     private static final int PUBLISH_INTERVAL = 1000; // Intervalle en millisecondes (1 seconde)
     private SensorDataProvider sensorDataProvider; // Interface pour récupérer les données des capteurs
+    private boolean isPublishing = false; // Drapeau pour éviter l'envoi en double
 
     public class LocalBinder extends Binder {
         public MqttPublishService getService() {
@@ -81,6 +82,12 @@ public class MqttPublishService extends Service {
     }
 
     private void startPublishing() {
+        if (isPublishing) {
+            Log.d(TAG, "Publishing already in progress, skipping duplicate start.");
+            return; // Éviter de démarrer une nouvelle tâche si elle est déjà en cours
+        }
+
+        isPublishing = true; // Marquer comme en cours de publication
         publishRunnable = new Runnable() {
             @Override
             public void run() {
@@ -151,6 +158,7 @@ public class MqttPublishService extends Service {
         if (handler != null && publishRunnable != null) {
             handler.removeCallbacks(publishRunnable); // Arrêter la tâche
         }
+        isPublishing = false; // Réinitialiser le drapeau
     }
 
     private void disconnect() {
