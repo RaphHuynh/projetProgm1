@@ -52,11 +52,6 @@ public abstract class BaseActivity extends AppCompatActivity {
             MqttPublishService.LocalBinder binder = (MqttPublishService.LocalBinder) service;
             mqttPublishService = binder.getService();
             isServiceBound = true;
-
-            // Envoyer un message initial via MQTT
-            if (mqttPublishService != null) {
-                mqttPublishService.publishMessage("BaseActivity démarrée");
-            }
         }
 
         @Override

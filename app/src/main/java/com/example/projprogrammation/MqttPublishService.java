@@ -85,7 +85,9 @@ public class MqttPublishService extends Service {
             @Override
             public void run() {
                 String message = generateSensorDataMessage(); // Générer un message JSON avec les données des capteurs
-                publishMessage(message); // Publier le message
+                if (message != null) { // Vérifier si un message doit être envoyé
+                    publishMessage(message); // Publier le message
+                }
                 handler.postDelayed(this, PUBLISH_INTERVAL); // Replanifier la tâche toutes les secondes
             }
         };
@@ -95,31 +97,45 @@ public class MqttPublishService extends Service {
     private String generateSensorDataMessage() {
         try {
             JSONObject jsonObject = new JSONObject();
+            boolean hasData = false;
+
             if (sensorDataProvider != null) {
                 // Récupérer les données des capteurs activés
                 if (sensorDataProvider.isAccelerometerEnabled()) {
                     jsonObject.put("accelerometer", sensorDataProvider.getAccelerometerData());
+                    hasData = true;
                 }
                 if (sensorDataProvider.isGyroscopeEnabled()) {
                     jsonObject.put("gyroscope", sensorDataProvider.getGyroscopeData());
+                    hasData = true;
                 }
                 if (sensorDataProvider.isMagnetometerEnabled()) {
                     jsonObject.put("magnetometer", sensorDataProvider.getMagnetometerData());
+                    hasData = true;
                 }
                 if (sensorDataProvider.isTemperatureEnabled()) {
                     jsonObject.put("temperature", sensorDataProvider.getTemperatureData());
+                    hasData = true;
                 }
                 if (sensorDataProvider.isPressureEnabled()) {
                     jsonObject.put("pressure", sensorDataProvider.getPressureData());
+                    hasData = true;
                 }
                 if (sensorDataProvider.isGpsEnabled()) {
                     jsonObject.put("gps", sensorDataProvider.getGpsData());
+                    hasData = true;
                 }
             }
+
+            // Si aucun capteur n'est activé, retourner null pour indiquer qu'aucun message ne doit être envoyé
+            if (!hasData) {
+                return null;
+            }
+
             return jsonObject.toString();
         } catch (Exception e) {
             Log.e(TAG, "Error generating sensor data message", e);
-            return "{}"; // Retourner un objet JSON vide en cas d'erreur
+            return null; // Retourner null en cas d'erreur
         }
     }
 
