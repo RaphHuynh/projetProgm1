@@ -29,6 +29,7 @@ public class MqttPublishService extends Service {
     private static final int PUBLISH_INTERVAL = 1000; // Intervalle en millisecondes (1 seconde)
     private SensorDataProvider sensorDataProvider; // Interface pour récupérer les données des capteurs
     private boolean isPublishing = false; // Drapeau pour éviter l'envoi en double
+    private boolean isChronoRunning = false; // Indicateur pour le statut du chronomètre
 
     public class LocalBinder extends Binder {
         public MqttPublishService getService() {
@@ -81,19 +82,25 @@ public class MqttPublishService extends Service {
         return START_STICKY;
     }
 
+    public void setChronoRunning(boolean isRunning) {
+        this.isChronoRunning = isRunning;
+    }
+
     private void startPublishing() {
         if (isPublishing) {
             Log.d(TAG, "Publishing already in progress, skipping duplicate start.");
-            return; // Éviter de démarrer une nouvelle tâche si elle est déjà en cours
+            return;
         }
 
-        isPublishing = true; // Marquer comme en cours de publication
+        isPublishing = true;
         publishRunnable = new Runnable() {
             @Override
             public void run() {
-                String message = generateSensorDataMessage(); // Générer un message JSON avec les données des capteurs
-                if (message != null) { // Vérifier si un message doit être envoyé
-                    publishMessage(message); // Publier le message
+                if (isChronoRunning) { // Vérifier si le chronomètre est lancé
+                    String message = generateSensorDataMessage(); // Générer un message JSON avec les données des capteurs
+                    if (message != null) { // Vérifier si un message doit être envoyé
+                        publishMessage(message); // Publier le message
+                    }
                 }
                 handler.postDelayed(this, PUBLISH_INTERVAL); // Replanifier la tâche toutes les secondes
             }

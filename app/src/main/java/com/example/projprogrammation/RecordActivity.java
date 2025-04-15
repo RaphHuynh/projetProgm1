@@ -1,12 +1,21 @@
 package com.example.projprogrammation;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RecordActivity extends BaseActivity {
 
@@ -17,10 +26,25 @@ public class RecordActivity extends BaseActivity {
     private long startTime = 0;
     private boolean isRunning = false;
 
+    private RecyclerView sensorDataRecyclerView;
+    private SensorDataAdapter sensorDataAdapter;
+    private List<String> sensorDataList = new ArrayList<>();
+    private Handler sensorHandler = new Handler();
+    private MqttPublishService mqttPublishService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.activity_record, findViewById(R.id.container));
+
+        // Initialiser la RecyclerView
+        sensorDataRecyclerView = findViewById(R.id.sensorDataRecyclerView);
+        sensorDataAdapter = new SensorDataAdapter(sensorDataList);
+        sensorDataRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        sensorDataRecyclerView.setAdapter(sensorDataAdapter);
+
+        // Démarrer la collecte des données des capteurs
+        startSensorDataCollection();
 
         startChronoButton = findViewById(R.id.startChronoButton);
         chronoTextView = findViewById(R.id.chronoTextView);
@@ -35,6 +59,21 @@ public class RecordActivity extends BaseActivity {
             updateChrono();
         }
 
+        // Lier le service MQTT
+        Intent mqttServiceIntent = new Intent(this, MqttPublishService.class);
+        bindService(mqttServiceIntent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                MqttPublishService.LocalBinder binder = (MqttPublishService.LocalBinder) service;
+                mqttPublishService = binder.getService();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mqttPublishService = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
+
         startChronoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -43,10 +82,16 @@ public class RecordActivity extends BaseActivity {
                     isRunning = true;
                     startChronoButton.setText("Stop");
                     updateChrono();
+                    if (mqttPublishService != null) {
+                        mqttPublishService.setChronoRunning(true); // Activer l'envoi MQTT
+                    }
                 } else {
                     isRunning = false;
                     handler.removeCallbacksAndMessages(null);
                     startChronoButton.setText("Lancer l'enregistrement");
+                    if (mqttPublishService != null) {
+                        mqttPublishService.setChronoRunning(false); // Désactiver l'envoi MQTT
+                    }
                 }
             }
         });
@@ -69,6 +114,23 @@ public class RecordActivity extends BaseActivity {
         });
     }
 
+    private void startSensorDataCollection() {
+        sensorHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                // Simuler la collecte des données des capteurs activés
+                String simulatedData = "Donnée capteur : " + System.currentTimeMillis();
+                sensorDataList.add(simulatedData);
+
+                // Mettre à jour la RecyclerView
+                sensorDataAdapter.notifyItemInserted(sensorDataList.size() - 1);
+
+                // Replanifier la collecte toutes les 2 secondes
+                sensorHandler.postDelayed(this, 2000);
+            }
+        });
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -83,7 +145,15 @@ public class RecordActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        handler.removeCallbacksAndMessages(null);
+        if (mqttPublishService != null) {
+            unbindService(new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {}
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {}
+            });
+        }
     }
 
     @Override
