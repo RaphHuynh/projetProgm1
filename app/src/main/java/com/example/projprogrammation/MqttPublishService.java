@@ -3,6 +3,7 @@ package com.example.projprogrammation;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -17,6 +18,12 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class MqttPublishService extends Service {
 
     private static final String TAG = "MqttPublishService";
@@ -30,6 +37,7 @@ public class MqttPublishService extends Service {
     private SensorDataProvider sensorDataProvider; // Interface pour récupérer les données des capteurs
     private boolean isPublishing = false; // Drapeau pour éviter l'envoi en double
     private boolean isChronoRunning = false; // Indicateur pour le statut du chronomètre
+    private File currentRecordFile;
 
     public class LocalBinder extends Binder {
         public MqttPublishService getService() {
@@ -93,13 +101,18 @@ public class MqttPublishService extends Service {
         }
 
         isPublishing = true;
+        createNewRecordFile(); // Créer un nouveau fichier pour cet enregistrement
         publishRunnable = new Runnable() {
             @Override
             public void run() {
-                if (isChronoRunning) { // Vérifier si le chronomètre est lancé
-                    String message = generateSensorDataMessage(); // Générer un message JSON avec les données des capteurs
-                    if (message != null) { // Vérifier si un message doit être envoyé
-                        publishMessage(message); // Publier le message
+                if (isChronoRunning) {
+                    String message = generateSensorDataMessage();
+                    if (message != null) {
+                        publishMessage(message);
+
+                        // Enregistrer les données dans le fichier
+                        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                        writeDataToFile(timestamp, "SensorData", message);
                     }
                 }
                 handler.postDelayed(this, PUBLISH_INTERVAL); // Replanifier la tâche toutes les secondes
@@ -193,5 +206,36 @@ public class MqttPublishService extends Service {
 
     public boolean isConnected() {
         return mqttClient != null && mqttClient.isConnected();
+    }
+
+    private void createNewRecordFile() {
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String fileName = "record_" + timestamp + ".csv"; // Changez en ".json" pour JSON
+        File directory = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "Records");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+        currentRecordFile = new File(directory, fileName);
+        try {
+            if (currentRecordFile.createNewFile()) {
+                Log.d(TAG, "File created: " + currentRecordFile.getAbsolutePath());
+                // Ajouter l'en-tête pour CSV
+                try (FileWriter writer = new FileWriter(currentRecordFile, true)) {
+                    writer.append("Timestamp,Sensor,Value\n"); // En-tête pour CSV
+                }
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Error creating file", e);
+        }
+    }
+
+    private void writeDataToFile(String timestamp, String sensor, String value) {
+        if (currentRecordFile != null) {
+            try (FileWriter writer = new FileWriter(currentRecordFile, true)) {
+                writer.append(timestamp).append(",").append(sensor).append(",").append(value).append("\n");
+            } catch (IOException e) {
+                Log.e(TAG, "Error writing to file", e);
+            }
+        }
     }
 }

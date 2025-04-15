@@ -12,10 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import java.util.ArrayList;
-import java.util.List;
 
 public class RecordActivity extends BaseActivity {
 
@@ -26,25 +22,14 @@ public class RecordActivity extends BaseActivity {
     private long startTime = 0;
     private boolean isRunning = false;
 
-    private RecyclerView sensorDataRecyclerView;
-    private SensorDataAdapter sensorDataAdapter;
-    private List<String> sensorDataList = new ArrayList<>();
-    private Handler sensorHandler = new Handler();
     private MqttPublishService mqttPublishService;
+    private boolean isServiceBound = false; // Variable pour suivre l'état du service
+    private ServiceConnection mqttServiceConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.activity_record, findViewById(R.id.container));
-
-        // Initialiser la RecyclerView
-        sensorDataRecyclerView = findViewById(R.id.sensorDataRecyclerView);
-        sensorDataAdapter = new SensorDataAdapter(sensorDataList);
-        sensorDataRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        sensorDataRecyclerView.setAdapter(sensorDataAdapter);
-
-        // Démarrer la collecte des données des capteurs
-        startSensorDataCollection();
 
         startChronoButton = findViewById(R.id.startChronoButton);
         chronoTextView = findViewById(R.id.chronoTextView);
@@ -59,20 +44,25 @@ public class RecordActivity extends BaseActivity {
             updateChrono();
         }
 
-        // Lier le service MQTT
-        Intent mqttServiceIntent = new Intent(this, MqttPublishService.class);
-        bindService(mqttServiceIntent, new ServiceConnection() {
+        // Initialiser la connexion au service
+        mqttServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 MqttPublishService.LocalBinder binder = (MqttPublishService.LocalBinder) service;
                 mqttPublishService = binder.getService();
+                isServiceBound = true; // Marquer le service comme enregistré
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 mqttPublishService = null;
+                isServiceBound = false; // Marquer le service comme non enregistré
             }
-        }, Context.BIND_AUTO_CREATE);
+        };
+
+        // Lier le service
+        Intent mqttServiceIntent = new Intent(this, MqttPublishService.class);
+        bindService(mqttServiceIntent, mqttServiceConnection, Context.BIND_AUTO_CREATE);
 
         startChronoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,23 +104,6 @@ public class RecordActivity extends BaseActivity {
         });
     }
 
-    private void startSensorDataCollection() {
-        sensorHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                // Simuler la collecte des données des capteurs activés
-                String simulatedData = "Donnée capteur : " + System.currentTimeMillis();
-                sensorDataList.add(simulatedData);
-
-                // Mettre à jour la RecyclerView
-                sensorDataAdapter.notifyItemInserted(sensorDataList.size() - 1);
-
-                // Replanifier la collecte toutes les 2 secondes
-                sensorHandler.postDelayed(this, 2000);
-            }
-        });
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -145,14 +118,10 @@ public class RecordActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mqttPublishService != null) {
-            unbindService(new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {}
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {}
-            });
+        // Vérifier si le service est enregistré avant de le désenregistrer
+        if (isServiceBound) {
+            unbindService(mqttServiceConnection);
+            isServiceBound = false;
         }
     }
 
