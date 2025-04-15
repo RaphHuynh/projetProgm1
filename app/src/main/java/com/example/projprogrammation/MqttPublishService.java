@@ -17,7 +17,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONObject;
-
+import java.io.FileOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,8 +36,10 @@ public class MqttPublishService extends Service {
     private static final int PUBLISH_INTERVAL = 1000; // Intervalle en millisecondes (1 seconde)
     private SensorDataProvider sensorDataProvider; // Interface pour récupérer les données des capteurs
     private boolean isPublishing = false; // Drapeau pour éviter l'envoi en double
-    private boolean isChronoRunning = false; // Indicateur pour le statut du chronomètre
+    private boolean isChronoRunning = false;
     private File currentRecordFile;
+    private File currentMetaFile;
+    private long recordStartTime = 0;
 
     public class LocalBinder extends Binder {
         public MqttPublishService getService() {
@@ -91,17 +93,20 @@ public class MqttPublishService extends Service {
     }
 
     public void setChronoRunning(boolean isRunning) {
-        this.isChronoRunning = isRunning;
+        // Si on démarre un nouveau record, on crée un nouveau fichier
+        if (isRunning && !isChronoRunning) {
+            createNewRecordFile();
+        }
+        // Si on arrête le record, on met à jour le fichier meta
+        if (!isRunning && isChronoRunning) {
+            updateMetaFileOnStop();
+        }
+        isChronoRunning = isRunning;
     }
 
     private void startPublishing() {
-        if (isPublishing) {
-            Log.d(TAG, "Publishing already in progress, skipping duplicate start.");
-            return;
-        }
-
+        if (isPublishing) return;
         isPublishing = true;
-        createNewRecordFile(); // Créer un nouveau fichier pour cet enregistrement
         publishRunnable = new Runnable() {
             @Override
             public void run() {
@@ -109,16 +114,14 @@ public class MqttPublishService extends Service {
                     String message = generateSensorDataMessage();
                     if (message != null) {
                         publishMessage(message);
-
-                        // Enregistrer les données dans le fichier
                         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
                         writeDataToFile(timestamp, "SensorData", message);
                     }
                 }
-                handler.postDelayed(this, PUBLISH_INTERVAL); // Replanifier la tâche toutes les secondes
+                handler.postDelayed(this, PUBLISH_INTERVAL);
             }
         };
-        handler.post(publishRunnable); // Démarrer la tâche
+        handler.post(publishRunnable);
     }
 
     private String generateSensorDataMessage() {
@@ -209,23 +212,49 @@ public class MqttPublishService extends Service {
     }
 
     private void createNewRecordFile() {
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String fileName = "record_" + timestamp + ".csv"; // Changez en ".json" pour JSON
+        recordStartTime = System.currentTimeMillis();
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date(recordStartTime));
+        String fileName = "record_" + timestamp + ".csv";
+        String metaName = "record_" + timestamp + ".json";
         File directory = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "Records");
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
+        if (!directory.exists()) directory.mkdirs();
         currentRecordFile = new File(directory, fileName);
+        currentMetaFile = new File(directory, metaName);
         try {
             if (currentRecordFile.createNewFile()) {
-                Log.d(TAG, "File created: " + currentRecordFile.getAbsolutePath());
-                // Ajouter l'en-tête pour CSV
                 try (FileWriter writer = new FileWriter(currentRecordFile, true)) {
-                    writer.append("Timestamp,Sensor,Value\n"); // En-tête pour CSV
+                    writer.append("Timestamp,Sensor,Value\n");
                 }
             }
-        } catch (IOException e) {
-            Log.e(TAG, "Error creating file", e);
+            // Créer le fichier de métadonnées JSON
+            JSONObject meta = new JSONObject();
+            meta.put("start", recordStartTime);
+            meta.put("filename", fileName);
+            meta.put("meta", metaName);
+            meta.put("duration", 0); // sera mis à jour à l'arrêt
+            meta.put("end", 0);
+            try (FileOutputStream fos = new FileOutputStream(currentMetaFile)) {
+                fos.write(meta.toString().getBytes());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error creating record/meta file", e);
+        }
+    }
+
+    private void updateMetaFileOnStop() {
+        if (currentMetaFile != null && currentMetaFile.exists() && recordStartTime != 0) {
+            try {
+                String content = new String(java.nio.file.Files.readAllBytes(currentMetaFile.toPath()));
+                JSONObject meta = new JSONObject(content);
+                long end = System.currentTimeMillis();
+                meta.put("end", end);
+                meta.put("duration", end - recordStartTime);
+                try (FileOutputStream fos = new FileOutputStream(currentMetaFile)) {
+                    fos.write(meta.toString().getBytes());
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error updating meta file", e);
+            }
         }
     }
 
