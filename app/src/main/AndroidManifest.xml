@@ -38,6 +38,7 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".RecordActivity" />
         <activity android:name=".HistoryActivity" />
+        <activity android:name=".HistoryDetailActivity" />
         <activity android:name=".AccelerometerActivity" />
         <activity android:name=".TemperatureActivity" />
         <activity android:name=".PressureActivity" />

@@ -1,5 +1,7 @@
 package com.example.projprogrammation;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.LayoutInflater;
@@ -87,6 +89,14 @@ public class HistoryActivity extends BaseActivity {
             RecordMeta meta = records.get(position);
             holder.dateView.setText(android.text.format.DateFormat.format("yyyy-MM-dd HH:mm:ss", meta.start));
             holder.durationView.setText("Durée : " + (meta.duration > 0 ? (meta.duration / 1000) + " sec" : "En cours"));
+
+            holder.cardView.setOnClickListener(view -> {
+                Context ctx = view.getContext();
+                Intent intent = new Intent(ctx, HistoryDetailActivity.class);
+                intent.putExtra("date", meta.start);
+                intent.putExtra("duration", meta.duration);
+                ctx.startActivity(intent);
+            });
         }
 
         @Override
