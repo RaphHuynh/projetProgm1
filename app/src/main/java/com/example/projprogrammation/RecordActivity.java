@@ -40,8 +40,12 @@ public class RecordActivity extends BaseActivity {
         startTime = prefs.getLong("startTime", 0);
         isRunning = prefs.getBoolean("isRunning", false);
 
+        // Afficher le bon texte sur le bouton selon l'état
         if (isRunning) {
+            startChronoButton.setText("Stop");
             updateChrono();
+        } else {
+            startChronoButton.setText("Lancer l'enregistrement");
         }
 
         // Initialiser la connexion au service
@@ -73,18 +77,32 @@ public class RecordActivity extends BaseActivity {
                     startChronoButton.setText("Stop");
                     updateChrono();
                     if (mqttPublishService != null) {
-                        mqttPublishService.setChronoRunning(true); // Activer l'envoi MQTT
+                        mqttPublishService.setChronoRunning(true);
                     }
                 } else {
                     isRunning = false;
                     handler.removeCallbacksAndMessages(null);
                     startChronoButton.setText("Lancer l'enregistrement");
                     if (mqttPublishService != null) {
-                        mqttPublishService.setChronoRunning(false); // Désactiver l'envoi MQTT
+                        mqttPublishService.setChronoRunning(false);
                     }
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Synchroniser l'état du bouton à chaque retour sur la page
+        SharedPreferences prefs = getSharedPreferences("ChronoPrefs", MODE_PRIVATE);
+        isRunning = prefs.getBoolean("isRunning", false);
+        if (isRunning) {
+            startChronoButton.setText("Stop");
+            updateChrono();
+        } else {
+            startChronoButton.setText("Lancer l'enregistrement");
+        }
     }
 
     private void updateChrono() {
