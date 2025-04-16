@@ -16,6 +16,7 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.FileOutputStream;
 import java.io.File;
@@ -23,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 
 public class MqttPublishService extends Service {
 
@@ -115,7 +117,15 @@ public class MqttPublishService extends Service {
                     if (message != null) {
                         publishMessage(message);
                         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-                        writeDataToFile(timestamp, "SensorData", message);
+                        try {
+                            JSONObject sensorData = new JSONObject(message);
+                            for (Iterator<String> it = sensorData.keys(); it.hasNext(); ) { // Remplacer keySet() par keys()
+                                String key = it.next();
+                                writeDataToFile(timestamp, key, sensorData.getJSONObject(key));
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error processing sensor data message", e);
+                        }
                     }
                 }
                 handler.postDelayed(this, PUBLISH_INTERVAL);
@@ -214,30 +224,27 @@ public class MqttPublishService extends Service {
     private void createNewRecordFile() {
         recordStartTime = System.currentTimeMillis();
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date(recordStartTime));
-        String fileName = "record_" + timestamp + ".csv";
         String metaName = "record_" + timestamp + ".json";
         File directory = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "Records");
         if (!directory.exists()) directory.mkdirs();
-        currentRecordFile = new File(directory, fileName);
         currentMetaFile = new File(directory, metaName);
         try {
-            if (currentRecordFile.createNewFile()) {
-                try (FileWriter writer = new FileWriter(currentRecordFile, true)) {
-                    writer.append("Timestamp,Sensor,Value\n");
-                }
-            }
             // Créer le fichier de métadonnées JSON
             JSONObject meta = new JSONObject();
             meta.put("start", recordStartTime);
-            meta.put("filename", fileName);
-            meta.put("meta", metaName);
             meta.put("duration", 0); // sera mis à jour à l'arrêt
             meta.put("end", 0);
+            meta.put("accelerometer", new JSONArray());
+            meta.put("gyroscope", new JSONArray());
+            meta.put("magnetometer", new JSONArray());
+            meta.put("temperature", new JSONArray());
+            meta.put("pressure", new JSONArray());
+            meta.put("gps", new JSONArray());
             try (FileOutputStream fos = new FileOutputStream(currentMetaFile)) {
                 fos.write(meta.toString().getBytes());
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error creating record/meta file", e);
+            Log.e(TAG, "Error creating meta file", e);
         }
     }
 
@@ -258,12 +265,22 @@ public class MqttPublishService extends Service {
         }
     }
 
-    private void writeDataToFile(String timestamp, String sensor, String value) {
-        if (currentRecordFile != null) {
-            try (FileWriter writer = new FileWriter(currentRecordFile, true)) {
-                writer.append(timestamp).append(",").append(sensor).append(",").append(value).append("\n");
-            } catch (IOException e) {
-                Log.e(TAG, "Error writing to file", e);
+    private void writeDataToFile(String timestamp, String sensor, JSONObject sensorData) {
+        if (currentMetaFile != null) {
+            try {
+                String content = new String(java.nio.file.Files.readAllBytes(currentMetaFile.toPath()));
+                JSONObject meta = new JSONObject(content);
+                JSONArray sensorArray = meta.optJSONArray(sensor);
+                if (sensorArray != null) {
+                    sensorData.put("timestamp", timestamp);
+                    sensorArray.put(sensorData);
+                    meta.put(sensor, sensorArray);
+                }
+                try (FileOutputStream fos = new FileOutputStream(currentMetaFile)) {
+                    fos.write(meta.toString().getBytes());
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error writing sensor data to file", e);
             }
         }
     }
