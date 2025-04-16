@@ -10,6 +10,11 @@ public class HistoryDetailActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history_detail);
 
+        // Afficher le bouton retour dans la barre d'action
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         TextView dateView = findViewById(R.id.detailDate);
         TextView durationView = findViewById(R.id.detailDuration);
 
@@ -18,6 +23,18 @@ public class HistoryDetailActivity extends BaseActivity {
 
         dateView.setText(android.text.format.DateFormat.format("yyyy-MM-dd HH:mm:ss", date));
         durationView.setText("Durée : " + (duration > 0 ? (duration / 1000) + " sec" : "En cours"));
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     @Override
