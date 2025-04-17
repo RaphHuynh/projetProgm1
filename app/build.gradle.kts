@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.org.eclipse.paho.client.mqttv3)
     implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
+    implementation("androidx.cardview:cardview:1.0.0")
 
     testImplementation(libs.junit)
 
