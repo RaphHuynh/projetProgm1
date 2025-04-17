@@ -1,113 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:gravity="center"
     android:padding="16dp">
 
-    <!-- Texte de bienvenue -->
-
-    <!-- Bouton pour accéder à la page des capteurs -->
-
+    <!-- Titre de la page -->
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/home_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="316dp"
-        android:padding="16dp"
-        android:text="Bienvenue sur l'application de statistiques pour cyclistes !"
-        android:textSize="18sp"
-        android:layout_gravity="center_horizontal" />
+        android:text="Page Home"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp"
+        android:gravity="center"
+        android:textColor="@android:color/black" />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/total_duration_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:cardElevation="4dp"
-        app:cardCornerRadius="8dp"
-        android:backgroundTint="@color/white">
+    <!-- Widget avec l'icône de vélo et le cercle de progression -->
+    <RelativeLayout
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="@drawable/circle_background">
 
+        <!-- Timer circulaire -->
+        <ProgressBar
+            android:id="@+id/bike_timer_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="190dp"
+            android:layout_height="190dp"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/circular_progress"
+            android:layout_centerInParent="true" />
+
+        <!-- Layout contenant l'icône de vélo et le texte pour la durée -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/total_duration_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Durée totale des trajets"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/black" />
-
-            <TextView
-                android:id="@+id/total_duration_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Calcul en cours..."
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:layout_marginTop="8dp" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center">
-
-        <!-- Widget avec l'icône de vélo -->
-        <RelativeLayout
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:background="@drawable/circle_background"
+            android:gravity="center"
             android:layout_centerInParent="true">
 
-            <!-- Timer circulaire -->
-            <ProgressBar
-                android:id="@+id/bike_timer_progress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="190dp"
-                android:layout_height="190dp"
-                android:indeterminate="false"
-                android:max="100"
-                android:progress="0"
-                android:progressDrawable="@drawable/circular_progress"
-                android:layout_centerInParent="true" />
+            <!-- Icône de vélo -->
+            <ImageView
+                android:id="@+id/bike_icon"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/ic_directions_bike"
+                android:tint="@android:color/black" />
 
-            <!-- Layout contenant l'icône de vélo et le texte pour la durée -->
-            <LinearLayout
+            <!-- Texte pour la durée -->
+            <TextView
+                android:id="@+id/bike_timer_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:layout_centerInParent="true">
-
-                <!-- Icône de vélo -->
-                <ImageView
-                    android:id="@+id/bike_icon"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:src="@drawable/ic_directions_bike"
-                    android:tint="@android:color/black" />
-
-                <!-- Texte pour la durée -->
-                <TextView
-                    android:id="@+id/bike_timer_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="00:00:00"
-                    android:textColor="@android:color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </RelativeLayout>
+                android:layout_marginTop="8dp"
+                android:text="00:00:00"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </RelativeLayout>
 
 </LinearLayout>
