@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="sensor_active">#3F51B5</color> <!-- Bleu indigo pour les capteurs actifs -->
+    <color name="backgroundCircleColor">#F5F5F5</color>
+    <color name="progressBackgroundColor">#E0E0E0</color>
+    <color name="progressColor">#FF5722</color>
+    <color name="primaryColor">#3F51B5</color>
+    <color name="primaryTextColor">#212121</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="sensor_active">#4CAF50</color> <!-- Couleur verte pour indiquer un capteur actif -->
 </resources>
