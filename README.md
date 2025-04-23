@@ -64,6 +64,8 @@ python fall_detection_server.py
 
 Les données sont structurées en deux catégories dans les dossiers `Accident/` et `Normal/` pour l'entraînement.
 
+Les fichiers `.h5` pour la sauvegarde des modèles sont trop volumineux pour être inclus dans le dépôt Git. Il en va de même pour les données utilisées.
+
 ### 🔍 Architecture du Projet
 
 - `app/src/main/` : Code source principal
