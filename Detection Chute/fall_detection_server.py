@@ -45,13 +45,16 @@ def on_message(client, userdata, message):
     try:
         # Décoder le message JSON
         data = json.loads(message.payload.decode())
-        
+        # format des données : {"accelerometer":{"x":0,"y":9.776321,"z":0.812345},"pressure":{"pressure":1013.25},"gps":{"latitude":0,"longitude":0}} on topic vehicle
+
         # Extraire les données d'accélération
         acc_data = {
-            "ACCX": data.get("accX", 0),
-            "ACCY": data.get("accY", 0),
-            "ACCZ": data.get("accZ", 0)
+            "ACCX": data.get("accelerometer", {}).get("x", 0),
+            "ACCY": data.get("accelerometer", {}).get("y", 0),
+            "ACCZ": data.get("accelerometer", {}).get("z", 0)
         }
+
+        print(acc_data)
         
         # Ajouter les données au buffer
         data_buffer.append(acc_data)
@@ -64,13 +67,15 @@ def on_message(client, userdata, message):
                 prediction = model.predict(model_input)
                 confidence = np.max(prediction)
                 predicted_class = np.argmax(prediction)
+                # Afficher les résultats
+                print(f"Prédiction: {predicted_class}, Confiance: {confidence:.2%}")
                 
                 # Si le modèle prédit une chute avec une confiance élevée
-                if predicted_class == 0 and confidence > 0.9 :  # 0 = Accident
+                if predicted_class == 1 and confidence > 0.9 :  # 0 = Accident
                     print(f"⚠️ CHUTE DETECTÉE! (confiance: {confidence:.2%})")
                     # Envoyer une alerte sur le mqtt
                     
-                    # client.publish("alert", json.dumps({"Notification": "Chute détectée!"}))
+                    client.publish("alert", json.dumps({"Notification": "Chute détectée!"}))
 
                     
     except Exception as e:

@@ -1,5 +1,9 @@
 package com.example.projprogrammation;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -31,6 +35,9 @@ public class MqttPublishService extends Service {
     private static final String TAG = "MqttPublishService";
     private static final String SERVER_URI = "tcp://194.57.103.203:1883";
     private static final String TOPIC = "vehicle";
+    private static final String ALERT_TOPIC = "vehicle";
+    private static final String ALERT_CHANNEL_ID = "fall_alert_channel";
+    private static final String ALERT_CHANNEL_NAME = "Alertes Chute";
     private MqttClient mqttClient;
     private final IBinder binder = new LocalBinder();
     private Handler handler = new Handler();
@@ -55,6 +62,7 @@ public class MqttPublishService extends Service {
         Log.d(TAG, "onCreate: Service created");
         initializeMqttClient();
         sensorDataProvider = SensorDataProvider.getInstance(this); // Passer le contexte de service
+        createAlertNotificationChannel();
     }
 
     private void initializeMqttClient() {
@@ -63,10 +71,73 @@ public class MqttPublishService extends Service {
             MqttConnectOptions options = new MqttConnectOptions();
             options.setAutomaticReconnect(true);
             options.setCleanSession(true);
+            mqttClient.setCallback(new MqttCallback() {
+                @Override
+                public void connectionLost(Throwable cause) {
+                    Log.e(TAG, "MQTT connection lost", cause);
+                }
+
+                @Override
+                public void messageArrived(String topic, MqttMessage message) {
+                    if (ALERT_TOPIC.equals(topic)) {
+                        handleAlertMessage(message.toString());
+                    }
+                    // ...si besoin, gérer d'autres topics...
+                }
+
+                @Override
+                public void deliveryComplete(IMqttDeliveryToken token) {
+                    // ...existing code...
+                }
+            });
             mqttClient.connect(options);
             Log.d(TAG, "Connected to MQTT broker");
+            mqttClient.subscribe(TOPIC); // "vehicle"
+            mqttClient.subscribe(ALERT_TOPIC); // "alert"
         } catch (MqttException e) {
             Log.e(TAG, "Error initializing MQTT client", e);
+        }
+    }
+
+    private void handleAlertMessage(String payload) {
+        try {
+            JSONObject json = new JSONObject(payload);
+            if (json.has("Notification")) {
+                String message = json.getString("Notification");
+                showFallAlertNotification(message);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling alert message", e);
+        }
+    }
+
+    private void showFallAlertNotification(String message) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Notification.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder = new Notification.Builder(this, ALERT_CHANNEL_ID);
+        } else {
+            builder = new Notification.Builder(this);
+        }
+        builder.setContentTitle("Alerte de Chute")
+                .setContentText(message)
+                .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                .setAutoCancel(true)
+                .setPriority(Notification.PRIORITY_HIGH);
+
+        notificationManager.notify(1001, builder.build());
+    }
+
+    private void createAlertNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    ALERT_CHANNEL_ID,
+                    ALERT_CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription("Notifications d'alerte de chute");
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
         }
     }
 

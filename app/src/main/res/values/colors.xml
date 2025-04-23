@@ -7,5 +7,5 @@
     <color name="primaryTextColor">#212121</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="sensor_active">#4CAF50</color> <!-- Couleur verte pour indiquer un capteur actif -->
+    <color name="sensor_active">#3F51B5</color> 
 </resources>
